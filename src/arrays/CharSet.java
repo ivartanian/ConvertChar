@@ -34,18 +34,15 @@ public class CharSet {
 
         int[] resultInt = new int[bytes.length >> 2];
 
-        int[] currentResult = new int[4];
         int position;
         for (int i = 0; i < resultInt.length; i++) {
 
             position = i << 2;
 
-            currentResult[0]    = (bytes[position] & 0x000000FF) << 24;
-            currentResult[1]    = (bytes[position + 1] & 0x000000FF) << 16;
-            currentResult[2]    = (bytes[position + 2] & 0x000000FF) << 8;
-            currentResult[3]    = (bytes[position + 3] & 0x000000FF);
-
-            resultInt[i] = currentResult[0] + currentResult[1] + currentResult[2] + currentResult[3];
+            resultInt[i] = ((bytes[position] & 0x000000FF) << 24)
+                         + ((bytes[position + 1] & 0x000000FF) << 16)
+                         + ((bytes[position + 2] & 0x000000FF) << 8)
+                         + ((bytes[position + 3] & 0x000000FF));
 
         }
 
