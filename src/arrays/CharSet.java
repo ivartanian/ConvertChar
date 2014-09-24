@@ -20,7 +20,7 @@ public class CharSet {
         String str1 = "\u1E8480";
         char[] chars = str1.toCharArray();
         for (char c: chars) {
-            System.out.println(c);
+            System.out.print(c);
         }
 
 
