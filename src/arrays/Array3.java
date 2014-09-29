@@ -5,7 +5,10 @@ package arrays;
  */
 public class Array3 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+
+        Class<?> charSet = Class.forName("CharSet");
+        charSet.newInstance();
 
 //        int x = 0;
 //        System.out.println(++x);
@@ -13,12 +16,12 @@ public class Array3 {
 //
 //        System.out.print(x++ == ++x);
 
-        int[] a  = new int[5];
-        int[] b = new int[5];
-        System.out.println(a[1]);
-        System.arraycopy(a, 0, b, 0, a.length);
-        a[1] = 544;
-        System.out.println(b[1]);
+//        int[] a  = new int[5];
+//        int[] b = new int[5];
+//        System.out.println(a[1]);
+//        System.arraycopy(a, 0, b, 0, a.length);
+//        a[1] = 544;
+//        System.out.println(b[1]);
 
     }
 
