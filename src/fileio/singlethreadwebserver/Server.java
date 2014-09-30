@@ -21,38 +21,60 @@ public class Server {
         this.host = host;
     }
 
-    public void startServer() throws IOException, InterruptedException {
+    public void startServer() throws IOException {
 
         System.out.println("server started...");
 
-        byte[] response = getResponse();
-
+        byte[] response = null;
+        response = getResponse();
 
         ServerSocket serverSocket = new ServerSocket(port);
 
-        while (true){
+        Socket socket = null;
+        BufferedInputStream bufferedInputStream = null;
+        BufferedOutputStream bufferedOutputStream = null;
 
-            Socket socket = serverSocket.accept();
+        try {
 
-            byte[] buff = new byte[1024 * 8];
+            while (true) {
 
-            System.err.println("request SERVER <- CLIENT: time:" + System.nanoTime());
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
-            int receiveBufferSize = socket.getReceiveBufferSize();
-            int read = bufferedInputStream.read(buff);
+                socket = serverSocket.accept();
 
-            Thread.sleep(300);
+                byte[] buff = new byte[1024 * 8];
 
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-            bufferedOutputStream.write(response);
-            bufferedOutputStream.flush();
-            System.err.println("response SERVER -> CLIENT: time:" + System.nanoTime());
+                System.err.println("request SERVER <- CLIENT: time:" + System.nanoTime());
+                bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+                int receiveBufferSize = socket.getReceiveBufferSize();
+                int read = bufferedInputStream.read(buff);
 
-            bufferedInputStream.close();
-            bufferedOutputStream.close();
-            socket.close();
+                Thread.sleep(300);
 
+                bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
+                bufferedOutputStream.write(response);
+                bufferedOutputStream.flush();
+                System.err.println("response SERVER -> CLIENT: time:" + System.nanoTime());
+
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (bufferedOutputStream != null) bufferedOutputStream.close();
+                if (socket != null) socket.close();
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (bufferedOutputStream != null) bufferedOutputStream.close();
+                if (socket != null) socket.close();
+                if (serverSocket != null) serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
 
     }
 
@@ -68,10 +90,14 @@ public class Server {
 
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
 
         Server server = new Server(8080, "localhost");
-        server.startServer();
+        try {
+            server.startServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

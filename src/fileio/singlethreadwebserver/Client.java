@@ -8,7 +8,7 @@ import java.nio.channels.FileChannel;
 /**
  * Created by i.vartanian on 30.09.2014.
  */
-public class Client implements Runnable{
+public class Client implements Runnable {
 
     private final int port;
     private final String host;
@@ -23,7 +23,7 @@ public class Client implements Runnable{
         this.id = id;
     }
 
-    public void startClient() throws IOException, InterruptedException {
+    public void startClient() throws IOException {
 
         byte[] request = getRequest();
 
@@ -31,21 +31,32 @@ public class Client implements Runnable{
 
         Socket socket = new Socket(host, port);
 
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-        bufferedOutputStream.write(request);
-        bufferedOutputStream.flush();
-        System.err.println("request #" + id + " CLIENT -> SERVER: time:" + System.nanoTime());
+        BufferedOutputStream bufferedOutputStream = null;
+        BufferedInputStream bufferedInputStream = null;
+        try {
+            bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
+            bufferedOutputStream.write(request);
+            bufferedOutputStream.flush();
+            System.err.println("request #" + id + " CLIENT -> SERVER: time:" + System.nanoTime());
 
 //        Thread.sleep(200);
 
-        System.err.println("response #" + id + " CLIENT <- SERVER: time:" + System.nanoTime());
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
-        buff = new byte[socket.getReceiveBufferSize()];
-        int read = bufferedInputStream.read(buff);
+            System.err.println("response #" + id + " CLIENT <- SERVER: time:" + System.nanoTime());
+            bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+            buff = new byte[socket.getReceiveBufferSize()];
+            int read = bufferedInputStream.read(buff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (bufferedOutputStream != null) bufferedOutputStream.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        bufferedOutputStream.close();
-        bufferedInputStream.close();
-        socket.close();
 
     }
 
@@ -61,7 +72,7 @@ public class Client implements Runnable{
 
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
 
         long start = System.nanoTime();
         for (int i = 1; i < 100; i++) {
@@ -71,7 +82,7 @@ public class Client implements Runnable{
         }
         long end = System.nanoTime();
 
-        System.err.println("run time, ms: "+ ((end - start) / 1000000));
+        System.err.println("run time, ms: " + ((end - start) / 1000000));
 
     }
 
@@ -80,8 +91,6 @@ public class Client implements Runnable{
         try {
             startClient();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
