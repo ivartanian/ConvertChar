@@ -1,4 +1,4 @@
-package fileio;
+package fileio.workwithchannel;
 
 import java.io.File;
 import java.io.FileInputStream;
