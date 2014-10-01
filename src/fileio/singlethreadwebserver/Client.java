@@ -15,7 +15,7 @@ public class Client implements Runnable {
 
     private final int id;
 
-    private final String pathRequest = "D:\\Temp\\request.txt";
+    private final String pathRequest = "D:\\IGOR\\Temp\\request.txt";
 
     public Client(int port, String host, int id) {
         this.port = port;
@@ -41,10 +41,11 @@ public class Client implements Runnable {
 
 //        Thread.sleep(200);
 
-            System.err.println("response #" + id + " CLIENT <- SERVER: time:" + System.nanoTime());
+//            System.err.println("response #" + id + " CLIENT <- SERVER: time:" + System.nanoTime());
             bufferedInputStream = new BufferedInputStream(socket.getInputStream());
             buff = new byte[socket.getReceiveBufferSize()];
             int read = bufferedInputStream.read(buff);
+            System.out.println("response #" + new String(buff, 0, read));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -72,13 +73,13 @@ public class Client implements Runnable {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         long start = System.nanoTime();
-        for (int i = 1; i < 100; i++) {
+        for (int i = 1; i < 50; i++) {
             Client client = new Client(8080, "localhost", i);
             Thread thread = new Thread(client);
-            thread.run();
+            thread.start();
         }
         long end = System.nanoTime();
 

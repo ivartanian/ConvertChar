@@ -14,7 +14,7 @@ public class Server {
     private final int port;
     private final String host;
 
-    private final String pathResponse = "D:\\Temp\\response.txt";
+    private final String pathResponse = "D:\\IGOR\\Temp\\response.txt";
 
     public Server(int port, String host) {
         this.port = port;

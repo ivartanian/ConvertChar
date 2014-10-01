@@ -11,83 +11,131 @@ import java.util.concurrent.FutureTask;
 /**
  * Created by i.vartanian on 30.09.2014.
  */
-public class Server implements Callable<Void>{
+public class Server {
 
     private final int port;
     private final String host;
-    private Socket socket;
     byte[] response;
 
-    private final String pathResponse = "D:\\Temp\\response.txt";
+    private final String pathResponse = "D:\\IGOR\\Temp\\response.txt";
 
-    public Server(int port, String host) throws IOException {
+    public Server(int port, String host) {
         this.port = port;
         this.host = host;
         this.response = getResponse();
     }
 
-    public void startServer() throws IOException, InterruptedException {
+    public void startServer() throws IOException {
 
         System.out.println("multi server started...");
 
         ServerSocket serverSocket = new ServerSocket(port);
 
-        while (true){
+        try {
+            while (true) {
 
-            socket = serverSocket.accept();
+                Socket socket = serverSocket.accept();
 
-            FutureTask task = new FutureTask(this);
-            Thread t = new Thread(task);
-            t.start();
+                ServerWorker serverWorker = new ServerWorker(socket);
+                Thread thread = new Thread(serverWorker);
+                thread.start();
 
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (serverSocket != null) serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
-    private byte[] getResponse() throws IOException {
+    private byte[] getResponse() {
 
-        FileChannel channel = new FileInputStream(new File(pathResponse)).getChannel();
-        ByteBuffer byteBuffer = ByteBuffer.allocate((int) channel.size());
+        FileChannel channel = null;
+        ByteBuffer byteBuffer = null;
+        try {
+            channel = new FileInputStream(new File(pathResponse)).getChannel();
+            byteBuffer = ByteBuffer.allocate((int) channel.size());
 
-        byteBuffer.clear();
-        channel.read(byteBuffer);
+            byteBuffer.clear();
+
+            channel.read(byteBuffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                channel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         return byteBuffer.array();
 
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
 
         Server server = new Server(8080, "localhost");
-        server.startServer();
+        try {
+            server.startServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
-    @Override
-    public Void call() throws IOException, InterruptedException, IllegalAccessException, InstantiationException {
+    public class ServerWorker implements Runnable{
 
-        byte[] buff = new byte[1024 * 8];
+        private final Socket socket;
 
-        System.err.println("request SERVER <- CLIENT: time:" + System.nanoTime());
-        BufferedInputStream bufferedInputStream = null;
-        bufferedInputStream = new BufferedInputStream(socket.getInputStream());
-        int receiveBufferSize = socket.getReceiveBufferSize();
-        int read = bufferedInputStream.read(buff);
+        public ServerWorker(Socket socket) {
+            this.socket = socket;
+        }
 
-        Thread.sleep(300);
+        @Override
+        public void run() {
 
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-        bufferedOutputStream.write(response);
-        bufferedOutputStream.flush();
-        System.err.println("response SERVER -> CLIENT: time:" + System.nanoTime());
+            byte[] buff = new byte[1024 * 8];
 
+            BufferedInputStream bufferedInputStream = null;
+            BufferedOutputStream bufferedOutputStream = null;
 
-        bufferedInputStream.close();
-        bufferedOutputStream.close();
-        socket.close();
+            System.err.println("request SERVER <- CLIENT: time:" + System.nanoTime());
+            try {
+                bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+                int receiveBufferSize = socket.getReceiveBufferSize();
+                int read = bufferedInputStream.read(buff);
 
-        return Void.TYPE.newInstance();
+                Thread.sleep(300);
 
+                bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
+                bufferedOutputStream.write(response);
+                bufferedOutputStream.flush();
+                System.err.println("response SERVER -> CLIENT: time:" + System.nanoTime());
+
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (bufferedOutputStream != null) bufferedOutputStream.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    if (bufferedInputStream != null) bufferedInputStream.close();
+                    if (bufferedOutputStream != null) bufferedOutputStream.close();
+                    if (socket != null) socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
     }
+
 
 }
