@@ -64,7 +64,7 @@ public class Client implements Runnable{
     public static void main(String[] args) throws IOException, InterruptedException {
 
         long start = System.nanoTime();
-        for (int i = 1; i < 100; i++) {
+        for (int i = 1; i < 10000; i++) {
             Client client = new Client(8080, "localhost", i);
             Thread thread = new Thread(client);
             thread.start();

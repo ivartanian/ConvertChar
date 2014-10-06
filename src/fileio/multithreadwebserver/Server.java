@@ -29,7 +29,7 @@ public class Server {
 
         System.out.println("multi server started...");
 
-        ServerSocket serverSocket = new ServerSocket(port);
+        ServerSocket serverSocket = new ServerSocket(port, 100);
 
         try {
             while (true) {

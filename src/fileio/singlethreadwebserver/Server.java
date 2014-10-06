@@ -28,7 +28,7 @@ public class Server {
         byte[] response = null;
         response = getResponse();
 
-        ServerSocket serverSocket = new ServerSocket(port);
+        ServerSocket serverSocket = new ServerSocket(port, 100);
 
         Socket socket = null;
         BufferedInputStream bufferedInputStream = null;
@@ -53,6 +53,7 @@ public class Server {
                 bufferedOutputStream.write(response);
                 bufferedOutputStream.flush();
                 System.err.println("response SERVER -> CLIENT: time:" + System.nanoTime());
+
 
                 if (bufferedInputStream != null) bufferedInputStream.close();
                 if (bufferedOutputStream != null) bufferedOutputStream.close();
